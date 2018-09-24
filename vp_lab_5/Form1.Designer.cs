@@ -28,31 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.mouseBox1 = new MouseBoxLib.MouseBox();
-            this.mouseBox2 = new MouseBoxLib.MouseBox();
+            this.buttonClear = new System.Windows.Forms.Button();
+            this.mouseBox = new MouseBoxLib.MouseBox();
             this.SuspendLayout();
             // 
-            // mouseBox1
+            // buttonClear
             // 
-            this.mouseBox1.Location = new System.Drawing.Point(0, 0);
-            this.mouseBox1.Name = "mouseBox1";
-            this.mouseBox1.Size = new System.Drawing.Size(226, 236);
-            this.mouseBox1.TabIndex = 0;
+            this.buttonClear.Location = new System.Drawing.Point(243, 12);
+            this.buttonClear.Name = "buttonClear";
+            this.buttonClear.Size = new System.Drawing.Size(151, 23);
+            this.buttonClear.TabIndex = 1;
+            this.buttonClear.Text = "Очистить";
+            this.buttonClear.UseVisualStyleBackColor = true;
+            this.buttonClear.Click += new System.EventHandler(this.buttonClear_Click);
             // 
-            // mouseBox2
+            // mouseBox
             // 
-            this.mouseBox2.Location = new System.Drawing.Point(232, 74);
-            this.mouseBox2.Name = "mouseBox2";
-            this.mouseBox2.Size = new System.Drawing.Size(226, 236);
-            this.mouseBox2.TabIndex = 1;
+            this.mouseBox.Location = new System.Drawing.Point(12, 12);
+            this.mouseBox.Name = "mouseBox";
+            this.mouseBox.Size = new System.Drawing.Size(225, 242);
+            this.mouseBox.TabIndex = 0;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.mouseBox2);
-            this.Controls.Add(this.mouseBox1);
+            this.ClientSize = new System.Drawing.Size(406, 258);
+            this.Controls.Add(this.buttonClear);
+            this.Controls.Add(this.mouseBox);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -63,6 +66,8 @@
 
         private MouseBoxLib.MouseBox mouseBox1;
         private MouseBoxLib.MouseBox mouseBox2;
+        private MouseBoxLib.MouseBox mouseBox;
+        private System.Windows.Forms.Button buttonClear;
     }
 }
 
