@@ -9,12 +9,19 @@ namespace MouseBoxLib
 {
     public partial class MouseBox: UserControl
     {
-        Graphics g; // Графическая зона
-        bool isDrawing; // Режим рисовки
+        private Graphics g; // Графическая зона
+
+        public bool isDrawVector = false;
+        public bool isDrawRegin = false;
+
+        private bool isPaintEntry = true; // Режим рисовки
 
         // Создание кисти
         Pen linePen = new Pen(Color.Blue, 1);
         Pen vectorPen = new Pen(Color.Red, 1);
+        Pen perpendicularPen = new Pen(Color.DarkRed, 1);
+        Pen circlePen = new Pen(Color.Green, 1);
+
 
         // Линия
         private Line line = new Line();
@@ -24,7 +31,16 @@ namespace MouseBoxLib
         /// </summary>
         public event EventHandler MoveMouseCircularPath;
 
-        public uint stepDrawingVector = 10;
+        // Шаг определения круговой траектории
+        public uint step = 10;
+
+        public MouseBox()
+        {
+            InitializeComponent();
+
+            // Инициализация графической области
+            g = drawPanel.CreateGraphics(); 
+        }
 
         /// <summary>
         /// Метод обрабатывающий выполняющий делегаты, подписанных на событие moveMouseCircularPath
@@ -37,22 +53,6 @@ namespace MouseBoxLib
                 MoveMouseCircularPath(this, e);
         }
 
-        public MouseBox()
-        {
-            InitializeComponent();
-
-            // Инициализация графической области
-            g = drawPanel.CreateGraphics(); 
-        }
-
-        /// <summary>
-        /// Очистка панели для рисования
-        /// </summary>
-        public void ClearDrawPanel()
-        {
-            g.Clear(SystemColors.Control);
-        }
-
         /// <summary>
         /// Алгорит распознавания круговых движений
         /// </summary>
@@ -60,7 +60,7 @@ namespace MouseBoxLib
         /// <param name="e"></param>
         private void MouseBox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (isDrawing)
+            if (isPaintEntry)
             {
                 // Отображаем координаты курсора
                 labelCoord.Text = "X: " + e.Location.X + " Y: " + e.Location.Y;
@@ -72,7 +72,7 @@ namespace MouseBoxLib
                     g.DrawLines(linePen, line.points.ToArray());
 
                // Каждые 10 точеку
-                if (line.points.Count % stepDrawingVector == 0)
+                if (line.points.Count % step == 0)
                 {
                     GraphicsPath path = new GraphicsPath();
 
@@ -80,9 +80,50 @@ namespace MouseBoxLib
 
                     Region r = new Region(path);
 
-                    //g.FillRegion(Brushes.Aqua, r);
+                    // Закрашиваем регион 
+                    if (isDrawRegin) g.FillRegion(Brushes.Aqua, r);
 
-                    g.DrawLine(vectorPen, line.points[0], line.points[line.points.Count - 1]);
+                    // Рисуем вектор из точки начала круга к последней точке линии
+                    if (isDrawVector) g.DrawLine(vectorPen, line.points[line.points.Count - (int)step], line.points[line.points.Count - 1]);
+
+                    PointF A = line.points[line.points.Count - (int)step];
+                    PointF B = line.points[line.points.Count - 1];
+
+                    // Точка по середине апроксимации
+                    PointF M = new PointF((A.X + B.X) / 2f, (A.Y + B.Y) / 2f);
+
+                    // Точка по середине траектории
+                    PointF R = line.points[line.points.Count - (int)step / 2];
+
+                    SolidBrush brush = new SolidBrush(Color.Green);
+
+                    // Отрисовываем точку
+                    g.FillEllipse(brush, M.X, M.Y, 5, 5);
+
+                    // Общее уравнение прямой  a * x + b * y + c = 0
+                    float a = A.Y - B.Y;
+                    float b = B.X - A.X;
+                    float c = (A.X * B.Y) - (B.X * A.Y);
+
+                    // Уравнение прямой с угловым коэффициентом y = k * x + d
+                    float k = -a / b;
+                    float d = -c / b;
+
+                    Line stright = new Line();
+
+                    float perpendicularStartX = (M.X > R.X) ? M.X : 0;
+                    float perpendicularEndX = (R.X > M.X) ? M.X : 300;
+
+                    for (float x = perpendicularStartX; x < perpendicularEndX; x++)
+                    {
+                        if (k != 0)
+                            stright.points.Add(new PointF(x, (- (1f / k) * (x - M.X)) + M.Y));
+                    }
+
+                    if (stright.points.Count > 2)
+                        g.DrawLines(perpendicularPen, stright.points.ToArray());
+
+
                 }
             }
         }
@@ -90,14 +131,22 @@ namespace MouseBoxLib
         // Курсор вышел за края рабочей зоны
         private void drawPanel_MouseLeave(object sender, EventArgs e)
         {
-            isDrawing = false; // Выключаем режим рисования
+            isPaintEntry = false; // Выключаем режим рисования
             line.points.Clear(); // Очищаем линию
         }
 
         // Курсор вернулся в рабочую зону
         private void drawPanel_MouseEnter(object sender, EventArgs e)
         {
-            isDrawing = true;   // Включаем режим рисования
+            isPaintEntry = true;   // Включаем режим рисования
+        }
+
+        /// <summary>
+        /// Очистка панели для рисования
+        /// </summary>
+        public void ClearDrawPanel()
+        {
+            g.Clear(SystemColors.Control);
         }
     }
 }

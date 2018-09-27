@@ -9,6 +9,6 @@ namespace MouseBoxLib.lib
     /// </summary>
     public class Line
     {
-        public List<Point> points = new List<Point>();
+        public List<PointF> points = new List<PointF>();
     }
 }
