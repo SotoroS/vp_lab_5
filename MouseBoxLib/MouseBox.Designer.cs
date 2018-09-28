@@ -32,12 +32,13 @@ namespace MouseBoxLib
         {
             this.labelCoord = new System.Windows.Forms.Label();
             this.drawPanel = new System.Windows.Forms.Panel();
+            this.InfoPanel = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // labelCoord
             // 
             this.labelCoord.AutoSize = true;
-            this.labelCoord.Location = new System.Drawing.Point(3, 225);
+            this.labelCoord.Location = new System.Drawing.Point(3, 303);
             this.labelCoord.Name = "labelCoord";
             this.labelCoord.Size = new System.Drawing.Size(48, 13);
             this.labelCoord.TabIndex = 1;
@@ -49,20 +50,29 @@ namespace MouseBoxLib
             this.drawPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.drawPanel.Location = new System.Drawing.Point(0, 0);
             this.drawPanel.Name = "drawPanel";
-            this.drawPanel.Size = new System.Drawing.Size(225, 219);
+            this.drawPanel.Size = new System.Drawing.Size(300, 300);
             this.drawPanel.TabIndex = 0;
             this.drawPanel.MouseEnter += new System.EventHandler(this.drawPanel_MouseEnter);
             this.drawPanel.MouseLeave += new System.EventHandler(this.drawPanel_MouseLeave);
             this.drawPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MouseBox_MouseMove);
             // 
+            // InfoPanel
+            // 
+            this.InfoPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.InfoPanel.Location = new System.Drawing.Point(306, 0);
+            this.InfoPanel.Name = "InfoPanel";
+            this.InfoPanel.Size = new System.Drawing.Size(300, 300);
+            this.InfoPanel.TabIndex = 1;
+            // 
             // MouseBox
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.InfoPanel);
             this.Controls.Add(this.labelCoord);
             this.Controls.Add(this.drawPanel);
             this.Name = "MouseBox";
-            this.Size = new System.Drawing.Size(225, 242);
+            this.Size = new System.Drawing.Size(607, 319);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -71,5 +81,6 @@ namespace MouseBoxLib
         #endregion
         private System.Windows.Forms.Label labelCoord;
         private System.Windows.Forms.Panel drawPanel;
+        private System.Windows.Forms.Panel InfoPanel;
     }
 }
