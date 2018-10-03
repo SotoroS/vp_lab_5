@@ -1,37 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using MouseBoxLib.lib;
+using System.Collections.Generic;
 
 namespace MouseBoxLib
 {
-    public partial class MouseBox: UserControl
+    public partial class MouseBox : UserControl
     {
-        private Graphics g;         // Графическая зона
-        private Graphics gInfo;     // Информационная графическая зона
-
-        public bool isDrawVector = true;
-        public bool isDrawRegin = false;
-
-        private bool isPaintEntry = true; // Режим рисовки
-
-        // Создание кисти
-        Pen linePen = new Pen(Color.Blue, 3);
-        Pen vectorPen = new Pen(Color.Red, 3);
-        Pen perpendicularPen = new Pen(Color.DarkRed, 3);
-        Pen circlePen = new Pen(Color.Green, 3);
-
-        SolidBrush gBrush = new SolidBrush(Color.Green);
-        SolidBrush bBrush = new SolidBrush(Color.Black);
-        SolidBrush grBrush = new SolidBrush(Color.Gray);
-
-
-
-        // Линия
-        private Line line = new Line();
-
         /// <summary>
         /// Хранит в себе список делегатов выполняемых при движении курсора мыши по круговой траектории
         /// </summary>
@@ -40,13 +16,37 @@ namespace MouseBoxLib
         // Шаг определения круговой траектории
         public uint step = 50;
 
+        // Состояния
+        public bool isDrawVector = true;
+        public bool isDrawRegin = false;
+
+        // Режим рисовки
+        private bool isPaintEntry = true;
+
+        // Траектория движения мышки
+        private List<PointF> path = new List<PointF>();
+
+        // Графическая зона
+        private Graphics g;
+
+
+        // Создание перьев
+        Pen pathPen = new Pen(Color.Blue, 1);
+        Pen vectorPen = new Pen(Color.Red, 1);
+        Pen perpendicularPen = new Pen(Color.DarkRed, 1);
+        Pen circlePen = new Pen(Color.Green, 1);
+
+        // Создание кистей
+        SolidBrush gBrush = new SolidBrush(Color.Green);
+        SolidBrush bBrush = new SolidBrush(Color.Black);
+        SolidBrush grBrush = new SolidBrush(Color.Gray);
+
         public MouseBox()
         {
             InitializeComponent();
 
             // Инициализация графической области
             g = drawPanel.CreateGraphics();
-            //gInfo = InfoPanel.CreateGraphics();
         }
 
         /// <summary>
@@ -67,63 +67,61 @@ namespace MouseBoxLib
         /// <param name="e"></param>
         private void MouseBox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (isPaintEntry)
+            // Проверяем можем ли мы рисовать
+            if (isPaintEntry && e.Button == MouseButtons.Left)
             {
-                // Отображаем координаты курсора
-                labelCoord.Text = "X: " + e.Location.X + " Y: " + e.Location.Y;
+                // Очищаем предыдущие линиии
+                if (path.Count == 0) ClearDrawPanel();
 
                 // Добавляем позицию мыши в список точек
-                line.points.Add(e.Location);
+                path.Add(e.Location);
 
                 // Отрисовка линиии 
-                if (line.points.Count > 2)
-                    g.DrawLines(linePen, line.points.ToArray());
+                if (path.Count > 2) g.DrawLines(pathPen, path.ToArray());
 
-               // Каждые 10 точеку
-                if (line.points.Count % step == 0)
+                // Каждые 10 точеку
+                if (path.Count % step == 0)
                 {
                     // Рисуем вектор из точки начала к последней точке линии
-                    if (isDrawVector) g.DrawLine(vectorPen, line.points[line.points.Count - (int)step], line.points[line.points.Count - 1]);
+                    if (isDrawVector) g.DrawLine(vectorPen, path[path.Count - (int)step], path[path.Count - 1]);
 
-                    PointF A = line.points[line.points.Count - (int)step];
-                    PointF B = line.points[line.points.Count - 1];
+                    // Рабочая область AB
+                    PointF A = path[path.Count - (int)step];
+                    PointF B = path[path.Count - 1];
 
-                    // Точка по середине апроксимации
+                    // Средняя точка R траектории AB
+                    PointF R = path[path.Count - ((int)step / 2)];
+
+                    // Точка M по середине отрезка AB
                     PointF M = new PointF((A.X + B.X) / 2f, (A.Y + B.Y) / 2f);
 
-                    // Средняя точка траектории
-                    PointF R = line.points[line.points.Count - (int)step / 2];
+                    // Прямая AB
+                    Straight straightAB = new Straight(A.X, A.Y, B.X, B.Y);
 
-                    // Уравнение прямой с угловым коэффициентом y = a * x + b
-                    float a = -(A.Y - B.Y) / (B.X - A.X);
-                    float b = -((A.X * B.Y) - (B.X * A.Y)) / (B.X - A.X);
+                    // Перпендикуляр к прямой AB в точке M
+                    Perpendicular perpendicularMK = new Perpendicular(M.X, M.Y, straightAB.K);
 
-                    // Уравнение прмяой парралельной основной прямой y = c * x + d
-                    //float d = a;
-                    //float c = 
+                    // Перпендикуляр к перпендикуляру MK в точке R
+                    Perpendicular perpendicularRO = new Perpendicular(R.X, R.Y, perpendicularMK.K);
 
-                    //// Строим параллельную прямую
-                    //PointF P = new PointF(R.X, (a * (M.X - R.X)) + R.Y);
+                    // Отрисовываем перпендикуляр MK
+                    g.DrawLine(perpendicularPen,
+                        new PointF(0f, perpendicularMK.getY(0f)),
+                        new PointF(300f, perpendicularMK.getY(300f))
+                    );
 
-                    //// Перпендикуляр
-                    //Line stright = new Line();
+                    // Отрисовываем перпендикуляр RO
+                    g.DrawLine(circlePen,
+                        new PointF(0f, perpendicularRO.getY(0f)),
+                        new PointF(300f, perpendicularRO.getY(300f))
+                    );
 
-                    //// Формируем ограничения для перпендикуляра
-                    //float perpendicularStartX = ((P.X > M.X && P.Y > M.Y) || (P.X > M.X && P.Y < M.Y)) ? 0 : M.X;
-                    //float perpendicularEndX = ((P.X < M.X && P.Y < M.Y) || (P.X < M.X && P.Y > M.Y)) ? 300 : M.X;
+                    PointF intersection = Intersection(perpendicularMK.K, perpendicularMK.B, perpendicularRO.K, perpendicularRO.B);
 
-                    // Создаем перпендикуляр
-                    //for (float x = perpendicularStartX; x < perpendicularEndX; x++)
-                    //    if (a != 0) stright.points.Add(new PointF(x, (-(1f / a) * (x - M.X)) + M.Y));
-
-                    //// Строим перпендикуляры
-                    //if (stright.points.Count > 2) g.DrawLines(perpendicularPen, stright.points.ToArray());
-
-                    //// Отрисовка точек M и R
-                    //g.FillEllipse(gBrush, M.X, M.Y, 5, 5);
-                    //g.FillEllipse(bBrush, R.X, R.Y, 5, 5);
-                    //g.FillEllipse(grBrush, P.X, P.Y, 5, 5);
-
+                    // Отрисовка точек M, R, intersection
+                    g.FillEllipse(gBrush, M.X, M.Y, 5, 5);
+                    g.FillEllipse(bBrush, R.X, R.Y, 5, 5);
+                    g.FillEllipse(grBrush, intersection.X, intersection.Y, 5, 5);
                 }
             }
         }
@@ -131,14 +129,17 @@ namespace MouseBoxLib
         // Курсор вышел за края рабочей зоны
         private void drawPanel_MouseLeave(object sender, EventArgs e)
         {
-            isPaintEntry = false; // Выключаем режим рисования
-            line.points.Clear(); // Очищаем линию
+            // Выключаем режим рисования
+            isPaintEntry = false;
+            // Очищаем линию
+            path.Clear();
         }
 
         // Курсор вернулся в рабочую зону
         private void drawPanel_MouseEnter(object sender, EventArgs e)
         {
-            isPaintEntry = true;   // Включаем режим рисования
+            // Включаем режим рисования
+            isPaintEntry = true;
         }
 
         /// <summary>
@@ -147,7 +148,21 @@ namespace MouseBoxLib
         public void ClearDrawPanel()
         {
             g.Clear(SystemColors.Control);
-            //gInfo.Clear(SystemColors.Control);
         }
+
+        /// <summary>
+        /// Точка пересечения двух прямых
+        /// </summary>
+        /// <param name="k1"></param>
+        /// <param name="b1"></param>
+        /// <param name="k2"></param>
+        /// <param name="b2"></param>
+        /// <returns></returns>
+        public PointF Intersection(float k1, float b1, float k2, float b2)
+        {
+            return new PointF((b1 - b2) / (k2 - k1), (((k2 * b1) - (k2 * b2)) / (k2 - k1)) + b2);
+        }
+
     }
 }
+

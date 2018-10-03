@@ -30,20 +30,8 @@ namespace MouseBoxLib
         /// </summary>
         private void InitializeComponent()
         {
-            this.labelCoord = new System.Windows.Forms.Label();
             this.drawPanel = new System.Windows.Forms.Panel();
-            this.InfoPanel = new System.Windows.Forms.Panel();
             this.SuspendLayout();
-            // 
-            // labelCoord
-            // 
-            this.labelCoord.AutoSize = true;
-            this.labelCoord.Location = new System.Drawing.Point(3, 303);
-            this.labelCoord.Name = "labelCoord";
-            this.labelCoord.Size = new System.Drawing.Size(48, 13);
-            this.labelCoord.TabIndex = 1;
-            this.labelCoord.Text = "X: 0 Y: 0";
-            this.labelCoord.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MouseBox_MouseMove);
             // 
             // drawPanel
             // 
@@ -56,31 +44,18 @@ namespace MouseBoxLib
             this.drawPanel.MouseLeave += new System.EventHandler(this.drawPanel_MouseLeave);
             this.drawPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MouseBox_MouseMove);
             // 
-            // InfoPanel
-            // 
-            this.InfoPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.InfoPanel.Location = new System.Drawing.Point(306, 0);
-            this.InfoPanel.Name = "InfoPanel";
-            this.InfoPanel.Size = new System.Drawing.Size(300, 300);
-            this.InfoPanel.TabIndex = 1;
-            // 
             // MouseBox
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.InfoPanel);
-            this.Controls.Add(this.labelCoord);
             this.Controls.Add(this.drawPanel);
             this.Name = "MouseBox";
-            this.Size = new System.Drawing.Size(607, 319);
+            this.Size = new System.Drawing.Size(301, 300);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Label labelCoord;
         private System.Windows.Forms.Panel drawPanel;
-        private System.Windows.Forms.Panel InfoPanel;
     }
 }

@@ -42,7 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="lib\Line.cs" />
+    <Compile Include="lib\Perpendicular.cs" />
+    <Compile Include="lib\Straight.cs" />
     <Compile Include="MouseBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
