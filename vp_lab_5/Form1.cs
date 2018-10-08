@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace vp_lab_5
 {
@@ -8,11 +11,11 @@ namespace vp_lab_5
         public Form1()
         {
             InitializeComponent();
+            //AllocConsole();
         }
 
         private void mouseBox_MoveMouseCircularPath(object sender, System.EventArgs e)
         {
-            MessageBox.Show("The calculations are complete", "My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
         }
 
         // Очистка области для отрисовки
@@ -21,40 +24,21 @@ namespace vp_lab_5
             mouseBox.ClearDrawPanel();
         }
 
-        // Переключатель режима отрисовки вектора
-        private void buttonDrawVectorTrigger_Click(object sender, System.EventArgs e)
-        {
-            if (mouseBox.isDrawVector)
-            {
-                mouseBox.isDrawVector = false;
-                buttonDrawVectorTrigger.Text = "Включить отрисовку векторов";
-            }
-            else
-            {
-                mouseBox.isDrawVector = true;
-                buttonDrawVectorTrigger.Text = "Выключить отрисовку векторов";
-            }
-        }
-
-        // Переключатель режима отрисовки региона
-        private void buttonDrawRegionTrigger_Click(object sender, System.EventArgs e)
-        {
-            if (mouseBox.isDrawRegin)
-            {
-                mouseBox.isDrawRegin = false;
-                buttonDrawRegionTrigger.Text = "Включить отрисовку регионов";
-            }
-            else
-            {
-                mouseBox.isDrawRegin = true;
-                buttonDrawRegionTrigger.Text = "Выключить отрисовку регионов";
-            }
-        }
 
         // Изменение шага индетификации круговой траектории
         private void buttonChangeStep_Click(object sender, System.EventArgs e)
         {
             mouseBox.step = Convert.ToUInt32(textBoxStep.Text);
         }
+
+
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool AllocConsole();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool FreeConsole();
     }
 }

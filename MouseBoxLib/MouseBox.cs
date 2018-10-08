@@ -8,13 +8,25 @@ namespace MouseBoxLib
 {
     public partial class MouseBox : UserControl
     {
+        // Размеры области отрисовки
+        private const float height = 300f;
+        private const float width = 300f;
+        
         /// <summary>
         /// Хранит в себе список делегатов выполняемых при движении курсора мыши по круговой траектории
         /// </summary>
         public event EventHandler MoveMouseCircularPath;
 
-        // Шаг определения круговой траектории
+        /// <summary>
+        /// Шаг аппроксимации траектории движения мыши
+        /// </summary>
         public uint step = 50;
+
+        /// <summary>
+        /// Радиус допускаемой кривизны круговой трактории
+        /// </summary>
+        public float radiusСurvature = 50f;
+        
 
         // Состояния
         public bool isDrawVector = true;
@@ -23,11 +35,16 @@ namespace MouseBoxLib
         // Режим рисовки
         private bool isPaintEntry = true;
 
-        // Траектория движения мышки
+        // Список точек траектории движения мышки
         private List<PointF> path = new List<PointF>();
 
         // Графическая зона
         private Graphics g;
+
+        // Точки начала и конца перпендикуляра
+        // предыдущего сегмента траетории
+        private PointF oldStartX;
+        private PointF oldEndX;
 
 
         // Создание перьев
@@ -40,6 +57,7 @@ namespace MouseBoxLib
         SolidBrush gBrush = new SolidBrush(Color.Green);
         SolidBrush bBrush = new SolidBrush(Color.Black);
         SolidBrush grBrush = new SolidBrush(Color.Gray);
+        SolidBrush blBrush = new SolidBrush(Color.Blue);
 
         public MouseBox()
         {
@@ -67,19 +85,17 @@ namespace MouseBoxLib
         /// <param name="e"></param>
         private void MouseBox_MouseMove(object sender, MouseEventArgs e)
         {
+            labelCoord.Text = e.Location.ToString();
+
             // Проверяем можем ли мы рисовать
             if (isPaintEntry && e.Button == MouseButtons.Left)
             {
-                // Очищаем предыдущие линиии
-                if (path.Count == 0) ClearDrawPanel();
-
                 // Добавляем позицию мыши в список точек
                 path.Add(e.Location);
 
                 // Отрисовка линиии 
                 if (path.Count > 2) g.DrawLines(pathPen, path.ToArray());
 
-                // Каждые 10 точеку
                 if (path.Count % step == 0)
                 {
                     // Рисуем вектор из точки начала к последней точке линии
@@ -104,24 +120,71 @@ namespace MouseBoxLib
                     // Перпендикуляр к перпендикуляру MK в точке R
                     Perpendicular perpendicularRO = new Perpendicular(R.X, R.Y, perpendicularMK.K);
 
-                    // Отрисовываем перпендикуляр MK
-                    g.DrawLine(perpendicularPen,
-                        new PointF(0f, perpendicularMK.getY(0f)),
-                        new PointF(300f, perpendicularMK.getY(300f))
-                    );
+                    // Точка пересечения MK и RO
+                    PointF I = GetIntersectionPoint(perpendicularMK.K, perpendicularMK.B, perpendicularRO.K, perpendicularRO.B);
 
-                    // Отрисовываем перпендикуляр RO
-                    g.DrawLine(circlePen,
-                        new PointF(0f, perpendicularRO.getY(0f)),
-                        new PointF(300f, perpendicularRO.getY(300f))
-                    );
+                    // Выводи полученные точки
+                    //Console.WriteLine("R({0}; {1}) M({2}; {3}) I({4}; {5})", R.X, R.Y, M.X, M.Y, I.X, I.Y);
 
-                    PointF intersection = Intersection(perpendicularMK.K, perpendicularMK.B, perpendicularRO.K, perpendicularRO.B);
+                    // Отсрисовка точек M & R
+                    g.FillEllipse(gBrush, M.X - 2f, M.Y - 2f, 4, 4);
+                    g.FillEllipse(bBrush, R.X - 2f, R.Y - 2f, 4, 4);
 
                     // Отрисовка точек M, R, intersection
-                    g.FillEllipse(gBrush, M.X, M.Y, 5, 5);
-                    g.FillEllipse(bBrush, R.X, R.Y, 5, 5);
-                    g.FillEllipse(grBrush, intersection.X, intersection.Y, 5, 5);
+                    g.FillEllipse(grBrush, I.X - 2f, I.Y - 2f, 4, 4);
+
+                    // TODO: Реализовать обрабтку в случае нахождение точек на вертикальной прямой
+                    // Если точки совпадают пропускаем этап
+                    if (I.X == M.X) return;
+
+                    // Алгоритм определение границ для перпендикуляра
+                    // Точка для определения коэффициента для нахождения точки радиуса
+                    PointF K1 = new PointF(M.X + ((I.X < M.X) ? (-5f) : (+5f)), perpendicularMK.getY(M.X + ((I.X < M.X) ? (-5f) : (+5f))));
+
+                    float lengthMK1 = (float)Math.Sqrt(((K1.X - M.X) * (K1.X - M.X)) + ((K1.Y - M.Y) * (K1.Y - M.Y)));
+                    float k = radiusСurvature / lengthMK1;
+
+                    PointF K = new PointF(
+                        M.X - ((K1.X - M.X) * k),
+                        perpendicularMK.getY(M.X - ((K1.X - M.X) * k))
+                    );
+
+                    // Отрисовываем точку K
+                    g.FillEllipse(blBrush, K.X - 2f, K.Y - 2f, 4, 4);
+
+                    //// Отрисовываем перпендикуляр RO
+                    //g.DrawLine(circlePen,
+                    //    new PointF(0f, perpendicularRO.getY(0f)),
+                    //    new PointF(300f, perpendicularRO.getY(300f))
+                    //);
+
+                    // Определяем допустимые координаты x для перпендикуляра
+                    float startX = (I.X > M.X) ? K.X : M.X;
+                    float endX = (I.X > M.X) ? M.X : K.X;
+
+                    // Отрисовываем перпендикуляр MK
+                    g.DrawLine(perpendicularPen,
+                        new PointF(startX, perpendicularMK.getY(startX)),
+                        new PointF(endX, perpendicularMK.getY(endX))
+                    );
+
+                    if (!oldStartX.IsEmpty && !oldStartX.IsEmpty &&
+                        IntersectionSegments(
+                            new PointF(startX, perpendicularMK.getY(startX)), 
+                            new PointF(endX, perpendicularMK.getY(endX)),
+                            oldStartX,
+                            oldEndX))
+                    {
+                        Console.WriteLine("TRUE");
+                    }
+                    else
+                    {
+                        Console.WriteLine("FALSE");
+                    }
+
+                    oldStartX = new PointF(startX, perpendicularMK.getY(startX));
+                    oldEndX = new PointF(endX, perpendicularMK.getY(endX));
+
                 }
             }
         }
@@ -158,9 +221,38 @@ namespace MouseBoxLib
         /// <param name="k2"></param>
         /// <param name="b2"></param>
         /// <returns></returns>
-        public PointF Intersection(float k1, float b1, float k2, float b2)
+        public PointF GetIntersectionPoint(float k1, float b1, float k2, float b2)
         {
             return new PointF((b1 - b2) / (k2 - k1), (((k2 * b1) - (k2 * b2)) / (k2 - k1)) + b2);
+        }
+
+        /// <summary>
+        /// Проверка на пересечение отрезков AB и CD
+        /// </summary>
+        /// <param name="A"></param>
+        /// <param name="B"></param>
+        /// <param name="C"></param>
+        /// <param name="D"></param>
+        /// <returns></returns>
+        public bool IntersectionSegments(PointF A, PointF B, PointF C, PointF D)
+        {
+            float v1 = VectorMultiply(new PointF(D.X - C.X, D.Y - C.Y), new PointF(A.X - C.X, A.Y - C.Y));
+            float v2 = VectorMultiply(new PointF(D.X - C.X, D.Y - C.Y), new PointF(B.X - C.X, B.Y - C.Y));
+            float v3 = VectorMultiply(new PointF(B.X - A.X, B.Y - A.Y), new PointF(C.X - A.X, C.Y - A.Y));
+            float v4 = VectorMultiply(new PointF(B.X - A.X, B.Y - A.Y), new PointF(D.X - A.X, D.Y - A.Y));
+
+            return (v1 * v2) < 0 && (v3 * v4) < 0;
+        }
+
+        /// <summary>
+        /// Векторное произведение
+        /// </summary>
+        /// <param name="A"></param>
+        /// <param name="B"></param>
+        /// <returns></returns>
+        public float VectorMultiply(PointF A, PointF B)
+        {
+            return A.X * B.Y - B.X * A.Y;
         }
 
     }

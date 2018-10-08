@@ -1,4 +1,6 @@
-﻿namespace MouseBoxLib.lib
+﻿using System;
+
+namespace MouseBoxLib.lib
 {
     public class Perpendicular
     {
@@ -44,6 +46,7 @@
         /// <returns>Координата y</returns>
         public float getY(float x)
         {
+            //Console.WriteLine("X: {0}; Y: {1}", x, (-(1 / k) * (x - this.x)) + y);
             return (-(1 / k) * (x - this.x)) + y;
         }
     }

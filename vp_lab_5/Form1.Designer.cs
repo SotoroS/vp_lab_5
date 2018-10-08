@@ -28,93 +28,106 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.buttonClear = new System.Windows.Forms.Button();
-            this.buttonDrawVectorTrigger = new System.Windows.Forms.Button();
-            this.buttonDrawRegionTrigger = new System.Windows.Forms.Button();
             this.textBoxStep = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.buttonChangeStep = new System.Windows.Forms.Button();
             this.mouseBox = new MouseBoxLib.MouseBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.pictureBoxStatus = new System.Windows.Forms.PictureBox();
+            this.label3 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStatus)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonClear
             // 
-            this.buttonClear.Location = new System.Drawing.Point(318, 324);
+            this.buttonClear.Location = new System.Drawing.Point(12, 336);
             this.buttonClear.Name = "buttonClear";
-            this.buttonClear.Size = new System.Drawing.Size(303, 23);
+            this.buttonClear.Size = new System.Drawing.Size(300, 23);
             this.buttonClear.TabIndex = 1;
             this.buttonClear.Text = "Очистить";
             this.buttonClear.UseVisualStyleBackColor = true;
             this.buttonClear.Click += new System.EventHandler(this.buttonClear_Click);
             // 
-            // buttonDrawVectorTrigger
-            // 
-            this.buttonDrawVectorTrigger.Location = new System.Drawing.Point(318, 353);
-            this.buttonDrawVectorTrigger.Name = "buttonDrawVectorTrigger";
-            this.buttonDrawVectorTrigger.Size = new System.Drawing.Size(303, 23);
-            this.buttonDrawVectorTrigger.TabIndex = 2;
-            this.buttonDrawVectorTrigger.Text = "Включить отрисовку векторов";
-            this.buttonDrawVectorTrigger.UseVisualStyleBackColor = true;
-            this.buttonDrawVectorTrigger.Click += new System.EventHandler(this.buttonDrawVectorTrigger_Click);
-            // 
-            // buttonDrawRegionTrigger
-            // 
-            this.buttonDrawRegionTrigger.Location = new System.Drawing.Point(318, 382);
-            this.buttonDrawRegionTrigger.Name = "buttonDrawRegionTrigger";
-            this.buttonDrawRegionTrigger.Size = new System.Drawing.Size(303, 23);
-            this.buttonDrawRegionTrigger.TabIndex = 3;
-            this.buttonDrawRegionTrigger.Text = "Включить отрисовку регионов";
-            this.buttonDrawRegionTrigger.UseVisualStyleBackColor = true;
-            this.buttonDrawRegionTrigger.Click += new System.EventHandler(this.buttonDrawRegionTrigger_Click);
-            // 
             // textBoxStep
             // 
-            this.textBoxStep.Location = new System.Drawing.Point(351, 411);
+            this.textBoxStep.Location = new System.Drawing.Point(180, 394);
             this.textBoxStep.Name = "textBoxStep";
-            this.textBoxStep.Size = new System.Drawing.Size(171, 20);
+            this.textBoxStep.Size = new System.Drawing.Size(132, 20);
             this.textBoxStep.TabIndex = 4;
             this.textBoxStep.Text = "50";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(315, 414);
+            this.label1.Location = new System.Drawing.Point(12, 397);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(30, 13);
+            this.label1.Size = new System.Drawing.Size(113, 13);
             this.label1.TabIndex = 5;
-            this.label1.Text = "Шаг:";
-            // 
-            // buttonChangeStep
-            // 
-            this.buttonChangeStep.Location = new System.Drawing.Point(528, 409);
-            this.buttonChangeStep.Name = "buttonChangeStep";
-            this.buttonChangeStep.Size = new System.Drawing.Size(93, 23);
-            this.buttonChangeStep.TabIndex = 6;
-            this.buttonChangeStep.Text = "Изменить";
-            this.buttonChangeStep.UseVisualStyleBackColor = true;
-            this.buttonChangeStep.Click += new System.EventHandler(this.buttonChangeStep_Click);
+            this.label1.Text = "Шаг аппроксимации:";
             // 
             // mouseBox
             // 
             this.mouseBox.Location = new System.Drawing.Point(12, 12);
             this.mouseBox.Name = "mouseBox";
-            this.mouseBox.Size = new System.Drawing.Size(609, 323);
+            this.mouseBox.Size = new System.Drawing.Size(300, 318);
             this.mouseBox.TabIndex = 0;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 371);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(162, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Радиус допустимой кривизны:";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(180, 368);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(132, 20);
+            this.textBox1.TabIndex = 7;
+            this.textBox1.Text = "50";
+            // 
+            // pictureBoxStatus
+            // 
+            this.pictureBoxStatus.Image = global::vp_lab_5.Properties.Resources.bad_status;
+            this.pictureBoxStatus.InitialImage = null;
+            this.pictureBoxStatus.Location = new System.Drawing.Point(180, 421);
+            this.pictureBoxStatus.Name = "pictureBoxStatus";
+            this.pictureBoxStatus.Size = new System.Drawing.Size(16, 16);
+            this.pictureBoxStatus.TabIndex = 9;
+            this.pictureBoxStatus.TabStop = false;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 421);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(151, 13);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "Статус кругового движения:";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(627, 439);
-            this.Controls.Add(this.buttonChangeStep);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(326, 449);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.pictureBoxStatus);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxStep);
-            this.Controls.Add(this.buttonDrawRegionTrigger);
-            this.Controls.Add(this.buttonDrawVectorTrigger);
             this.Controls.Add(this.buttonClear);
             this.Controls.Add(this.mouseBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Detected circular path";
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStatus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -125,12 +138,13 @@
         private MouseBoxLib.MouseBox mouseBox1;
         private MouseBoxLib.MouseBox mouseBox2;
         private System.Windows.Forms.Button buttonClear;
-        private System.Windows.Forms.Button buttonDrawVectorTrigger;
-        private System.Windows.Forms.Button buttonDrawRegionTrigger;
         private System.Windows.Forms.TextBox textBoxStep;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button buttonChangeStep;
         private MouseBoxLib.MouseBox mouseBox;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.PictureBox pictureBoxStatus;
+        private System.Windows.Forms.Label label3;
     }
 }
 
