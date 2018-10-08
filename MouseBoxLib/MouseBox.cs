@@ -7,11 +7,7 @@ using System.Collections.Generic;
 namespace MouseBoxLib
 {
     public partial class MouseBox : UserControl
-    {
-        // Размеры области отрисовки
-        private const float height = 300f;
-        private const float width = 300f;
-        
+    {      
         /// <summary>
         /// Хранит в себе список делегатов выполняемых при движении курсора мыши по круговой траектории
         /// </summary>
@@ -23,14 +19,42 @@ namespace MouseBoxLib
         public uint step = 50;
 
         /// <summary>
+        /// Размер точек
+        /// </summary>
+        public uint sizePoint = 5;
+
+        /// <summary>
         /// Радиус допускаемой кривизны круговой трактории
         /// </summary>
         public float radiusСurvature = 50f;
-        
 
-        // Состояния
-        public bool isDrawVector = true;
-        public bool isDrawRegin = false;
+        // Разрешение на отрисовку траектории движения курсора мыши
+        public bool isDrawTrajectory = true;
+        // Разрешение на отрисовку отрезка AB
+        public bool isDrawAB = true;
+        // Разрешение на отрисовку перпендикуляра MK
+        public bool isDrawPMK = false;
+        // Разрешение на отрисовку отрезка MK
+        public bool isDrawSMK = false;
+        // Разрешение на отрисовку перпендикуляра MK
+        public bool isDrawPRO = false;
+
+        // Разрешение на отрисовку точки A
+        public bool isDrawPointA = false;
+        // Разрешение на отрисовку точки B
+        public bool isDrawPointB = false;
+        // Разрешение на отрисовку точки M
+        public bool isDrawPointM = false;
+        // Разрешение на отрисовку точки K
+        public bool isDrawPointK = false;
+        // Разрешение на отрисовку точки R
+        public bool isDrawPointR = false;
+        // Разрешение на отрисовку точки O
+        public bool isDrawPointO = false;
+
+        // Размеры области отрисовки
+        private const float height = 300f;
+        private const float width = 300f;
 
         // Режим рисовки
         private bool isPaintEntry = true;
@@ -43,21 +67,23 @@ namespace MouseBoxLib
 
         // Точки начала и конца перпендикуляра
         // предыдущего сегмента траетории
-        private PointF oldStartX;
-        private PointF oldEndX;
-
+        private PointF oldStartpointMK;
+        private PointF oldEndPointMK;
 
         // Создание перьев
-        Pen pathPen = new Pen(Color.Blue, 1);
-        Pen vectorPen = new Pen(Color.Red, 1);
-        Pen perpendicularPen = new Pen(Color.DarkRed, 1);
-        Pen circlePen = new Pen(Color.Green, 1);
+        private Pen bPen = new Pen(Color.Blue, 1);
+        private Pen blPen = new Pen(Color.Black, 1);
+        private Pen rPen = new Pen(Color.Red, 1);
+        private Pen drPen = new Pen(Color.DarkRed, 1);
+        private Pen dsgPen = new Pen(Color.DarkSeaGreen, 1);
+        private Pen gPen = new Pen(Color.Green, 1);
 
         // Создание кистей
-        SolidBrush gBrush = new SolidBrush(Color.Green);
-        SolidBrush bBrush = new SolidBrush(Color.Black);
-        SolidBrush grBrush = new SolidBrush(Color.Gray);
-        SolidBrush blBrush = new SolidBrush(Color.Blue);
+        private SolidBrush rBrush = new SolidBrush(Color.Red);
+        private SolidBrush gBrush = new SolidBrush(Color.Green);
+        private SolidBrush bBrush = new SolidBrush(Color.Black);
+        private SolidBrush grBrush = new SolidBrush(Color.Gray);
+        private SolidBrush blBrush = new SolidBrush(Color.Blue);
 
         public MouseBox()
         {
@@ -85,6 +111,7 @@ namespace MouseBoxLib
         /// <param name="e"></param>
         private void MouseBox_MouseMove(object sender, MouseEventArgs e)
         {
+            // Отображаем координаты позиции курсора мыши
             labelCoord.Text = e.Location.ToString();
 
             // Проверяем можем ли мы рисовать
@@ -93,22 +120,24 @@ namespace MouseBoxLib
                 // Добавляем позицию мыши в список точек
                 path.Add(e.Location);
 
-                // Отрисовка линиии 
-                if (path.Count > 2) g.DrawLines(pathPen, path.ToArray());
+                // Отрисовка траектории движения курсора мыши 
+                if (isDrawTrajectory && path.Count > 2) g.DrawLines(blPen, path.ToArray());
 
+                // Проводим вычисления с заданной точночтью аппроксимации
                 if (path.Count % step == 0)
                 {
-                    // Рисуем вектор из точки начала к последней точке линии
-                    if (isDrawVector) g.DrawLine(vectorPen, path[path.Count - (int)step], path[path.Count - 1]);
+                    ///
+                    /// Инициализация
+                    ///
 
-                    // Рабочая область AB
+                    // Аппроксимация сегмента AB траекториии движения курсора мыши 
                     PointF A = path[path.Count - (int)step];
                     PointF B = path[path.Count - 1];
 
-                    // Средняя точка R траектории AB
+                    // Средняя точка R сегмента AB траектории движения курсора мыши
                     PointF R = path[path.Count - ((int)step / 2)];
 
-                    // Точка M по середине отрезка AB
+                    // Точка M - середина отрезка AB
                     PointF M = new PointF((A.X + B.X) / 2f, (A.Y + B.Y) / 2f);
 
                     // Прямая AB
@@ -117,63 +146,41 @@ namespace MouseBoxLib
                     // Перпендикуляр к прямой AB в точке M
                     Perpendicular perpendicularMK = new Perpendicular(M.X, M.Y, straightAB.K);
 
-                    // Перпендикуляр к перпендикуляру MK в точке R
+                    // Перпендикуляр к прмяой MK в точке R
                     Perpendicular perpendicularRO = new Perpendicular(R.X, R.Y, perpendicularMK.K);
 
                     // Точка пересечения MK и RO
-                    PointF I = GetIntersectionPoint(perpendicularMK.K, perpendicularMK.B, perpendicularRO.K, perpendicularRO.B);
+                    PointF O = GetIntersectionPoint(perpendicularMK.K, perpendicularMK.B, perpendicularRO.K, perpendicularRO.B);
 
-                    // Выводи полученные точки
-                    //Console.WriteLine("R({0}; {1}) M({2}; {3}) I({4}; {5})", R.X, R.Y, M.X, M.Y, I.X, I.Y);
+                    // Если точки совпадают пропускаем итерацию
+                    if (O.X == M.X) return;
 
-                    // Отсрисовка точек M & R
-                    g.FillEllipse(gBrush, M.X - 2f, M.Y - 2f, 4, 4);
-                    g.FillEllipse(bBrush, R.X - 2f, R.Y - 2f, 4, 4);
-
-                    // Отрисовка точек M, R, intersection
-                    g.FillEllipse(grBrush, I.X - 2f, I.Y - 2f, 4, 4);
-
-                    // TODO: Реализовать обрабтку в случае нахождение точек на вертикальной прямой
-                    // Если точки совпадают пропускаем этап
-                    if (I.X == M.X) return;
-
-                    // Алгоритм определение границ для перпендикуляра
                     // Точка для определения коэффициента для нахождения точки радиуса
-                    PointF K1 = new PointF(M.X + ((I.X < M.X) ? (-5f) : (+5f)), perpendicularMK.getY(M.X + ((I.X < M.X) ? (-5f) : (+5f))));
+                    PointF K1 = new PointF(M.X + ((O.X < M.X) ? (-5f) : (+5f)), perpendicularMK.getY(M.X + ((O.X < M.X) ? (-5f) : (+5f))));
 
+                    // Вычисляем длину отрезка MK1
                     float lengthMK1 = (float)Math.Sqrt(((K1.X - M.X) * (K1.X - M.X)) + ((K1.Y - M.Y) * (K1.Y - M.Y)));
+
+                    // Вычисляем отношение длин MK к MK1
                     float k = radiusСurvature / lengthMK1;
 
+                    // Вычисляем координаты точки K
                     PointF K = new PointF(
                         M.X - ((K1.X - M.X) * k),
                         perpendicularMK.getY(M.X - ((K1.X - M.X) * k))
                     );
 
-                    // Отрисовываем точку K
-                    g.FillEllipse(blBrush, K.X - 2f, K.Y - 2f, 4, 4);
-
-                    //// Отрисовываем перпендикуляр RO
-                    //g.DrawLine(circlePen,
-                    //    new PointF(0f, perpendicularRO.getY(0f)),
-                    //    new PointF(300f, perpendicularRO.getY(300f))
-                    //);
-
                     // Определяем допустимые координаты x для перпендикуляра
-                    float startX = (I.X > M.X) ? K.X : M.X;
-                    float endX = (I.X > M.X) ? M.X : K.X;
+                    PointF startPointMK = new PointF();
+                    startPointMK.X = Math.Min(K.X, M.X);
+                    startPointMK.Y = perpendicularMK.getY(startPointMK.X);
 
-                    // Отрисовываем перпендикуляр MK
-                    g.DrawLine(perpendicularPen,
-                        new PointF(startX, perpendicularMK.getY(startX)),
-                        new PointF(endX, perpendicularMK.getY(endX))
-                    );
+                    PointF endPointMK = new PointF();
+                    endPointMK.X = Math.Max(K.X, M.X);
+                    endPointMK.Y = perpendicularMK.getY(endPointMK.X);
 
-                    if (!oldStartX.IsEmpty && !oldStartX.IsEmpty &&
-                        IntersectionSegments(
-                            new PointF(startX, perpendicularMK.getY(startX)), 
-                            new PointF(endX, perpendicularMK.getY(endX)),
-                            oldStartX,
-                            oldEndX))
+                    if (!oldStartpointMK.IsEmpty && !oldStartpointMK.IsEmpty &&
+                        IntersectionSegments(startPointMK, endPointMK, oldStartpointMK, oldEndPointMK))
                     {
                         Console.WriteLine("TRUE");
                     }
@@ -182,9 +189,38 @@ namespace MouseBoxLib
                         Console.WriteLine("FALSE");
                     }
 
-                    oldStartX = new PointF(startX, perpendicularMK.getY(startX));
-                    oldEndX = new PointF(endX, perpendicularMK.getY(endX));
+                    oldStartpointMK = startPointMK;
+                    oldEndPointMK = endPointMK;
 
+                    ///
+                    /// Отрисовка
+                    /// 
+
+                    // Отрисовываем отрезок AB
+                    if (isDrawAB) g.DrawLine(rPen, A, B);
+
+                    // Отрисовка прямой MK
+                    if (isDrawPMK) g.DrawLine(dsgPen,
+                        new PointF(0f, perpendicularMK.getY(0f)),
+                        new PointF(300f, perpendicularMK.getY(300f))
+                    );
+
+                    // Отрисовываем отрезок MK
+                    if (isDrawSMK) g.DrawLine(gPen, startPointMK, endPointMK);
+
+                    // Отрисовываем перпендикуляр RO
+                    if (isDrawPRO) g.DrawLine(bPen,
+                        new PointF(0f, perpendicularRO.getY(0f)),
+                        new PointF(300f, perpendicularRO.getY(300f))
+                    );
+
+                    // Отсрисовка точек M & R
+                    if (isDrawPointA) g.FillEllipse(rBrush, A.X - ((float)sizePoint / 2f), A.Y - ((float)sizePoint / 2f), sizePoint, sizePoint);
+                    if (isDrawPointB) g.FillEllipse(rBrush, B.X - ((float)sizePoint / 2f), B.Y - ((float)sizePoint / 2f), sizePoint, sizePoint);
+                    if (isDrawPointM) g.FillEllipse(rBrush, M.X - ((float)sizePoint / 2f), M.Y - ((float)sizePoint / 2f), sizePoint, sizePoint);
+                    if (isDrawPointR) g.FillEllipse(bBrush, R.X - ((float)sizePoint / 2f), R.Y - ((float)sizePoint / 2f), sizePoint, sizePoint);
+                    if (isDrawPointO) g.FillEllipse(gBrush, O.X - ((float)sizePoint / 2f), O.Y - ((float)sizePoint / 2f), sizePoint, sizePoint);
+                    if (isDrawPointK) g.FillEllipse(gBrush, K.X - ((float)sizePoint / 2f), K.Y - ((float)sizePoint / 2f), sizePoint, sizePoint);
                 }
             }
         }
