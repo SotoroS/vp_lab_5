@@ -21,12 +21,25 @@ namespace MouseBoxLib
         /// <summary>
         /// Размер точек
         /// </summary>
-        public uint sizePoint = 5;
+        public uint sizePoint = 4;
 
         /// <summary>
         /// Радиус допускаемой кривизны круговой трактории
         /// </summary>
         public float radiusСurvature = 50f;
+
+        public bool Status {
+            get
+            {
+                return status;
+            }
+        }
+
+        /// <summary>
+        /// Статус определение круговой траектории
+        /// </summary>
+        private bool status = false;
+
 
         // Разрешение на отрисовку траектории движения курсора мыши
         public bool isDrawTrajectory = true;
@@ -36,7 +49,7 @@ namespace MouseBoxLib
         public bool isDrawPMK = false;
         // Разрешение на отрисовку отрезка MK
         public bool isDrawSMK = false;
-        // Разрешение на отрисовку перпендикуляра MK
+        // Разрешение на отрисовку перпендикуляра RO
         public bool isDrawPRO = false;
 
         // Разрешение на отрисовку точки A
@@ -97,11 +110,10 @@ namespace MouseBoxLib
         /// Метод обрабатывающий выполняющий делегаты, подписанных на событие moveMouseCircularPath
         /// </summary>
         /// <param name="e">Аргументы события</param>
-        protected virtual void OnMoveMouseCircularPath(MouseEventArgs e)
+        protected virtual void OnMoveMouseCircularPath(EventArgs e)
         {
             // Проверка на пустату списка делегатов подписанных на это событие
-            if (MoveMouseCircularPath != null)
-                MoveMouseCircularPath(this, e);
+            if (MoveMouseCircularPath != null) MoveMouseCircularPath(this, e);
         }
 
         /// <summary>
@@ -182,11 +194,13 @@ namespace MouseBoxLib
                     if (!oldStartpointMK.IsEmpty && !oldStartpointMK.IsEmpty &&
                         IntersectionSegments(startPointMK, endPointMK, oldStartpointMK, oldEndPointMK))
                     {
-                        Console.WriteLine("TRUE");
+                        status = true;
+                        this.OnMoveMouseCircularPath(EventArgs.Empty);
                     }
                     else
                     {
-                        Console.WriteLine("FALSE");
+                        status = false;
+                        this.OnMoveMouseCircularPath(EventArgs.Empty);
                     }
 
                     oldStartpointMK = startPointMK;

@@ -5,6 +5,8 @@ namespace MouseBoxLib.lib
 {
     public class Perpendicular
     {
+        private static int count = 0;
+
         private float k, x, y;
 
         /// <summary>
@@ -47,8 +49,18 @@ namespace MouseBoxLib.lib
         /// <returns>Координата y</returns>
         public float getY(float x)
         {
-            //Console.WriteLine("X: {0}; Y: {1}", x, (-(1 / k) * (x - this.x)) + y);
-            return (-(1 / k) * (x - this.x)) + y;
+            //Console.WriteLine("{0}: x - {1}, k - {2}, this.x - {3}, y - {4}, res - {5}", count++, x, k, this.x, y, (-(1 / k) * (x - this.x)) + y);
+            return (k == 0) ? this.x : (-(1 / k) * (x - this.x)) + y;
+        }
+
+        /// <summary>
+        /// Получение значения координаты y перпендикуляра по y
+        /// </summary>
+        /// <param name="y">Координата y</param>
+        /// <returns>Координата y</returns>
+        public float getX(float y)
+        {
+            return x - k * (y - this.y);
         }
     }
 }
